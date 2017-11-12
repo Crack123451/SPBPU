@@ -1,0 +1,35 @@
+I=imread('D:/man.jpg');   // прочитать изображение
+figure, imshow(I);        // вывести на экран
+title('»сходное изображение')
+
+I1=rgb2gray(I)            // преобразовать в оттенки серого
+
+figure, imhist(I1)        // вывести гистограмму
+
+h=imhist(I1);
+h1=h(1:5:256);
+horz=1:5:256;
+figure, bar(horz,h1);	  // столбчата€ гисторграмма
+
+imshow(I1)
+imcontrast                // Adjust Contrast
+
+pout_adapthisteq=adapthisteq(I1);
+figure, imshow(pout_adapthisteq);	//Ёквилизаци€ с помощью adapthisteq
+
+
+»сточники:
+http://matlab.exponenta.ru/imageprocess/book2/29.php
+http://matlab.exponenta.ru/imageprocess/book5/2.php
+http://matlab.exponenta.ru/imageprocess/book3/10/histeq.php
+
+http://matlab.exponenta.ru/imageprocess/book2/67.php
+
+https://www.youtube.com/watch?v=1-jURfDzP1s
+
+
+
+
+
+
+
