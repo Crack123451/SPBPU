@@ -1,4 +1,7 @@
-I=imread('D:/man.jpg');
+clear;
+close all;
+
+I=imread('D:/8.jpg');
 G=zeros (size(I,1),size(I,2));
 G=uint8(G);
 for i=1:size(I,1)
