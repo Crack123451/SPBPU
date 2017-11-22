@@ -1,0 +1,28 @@
+k=zeros(65535,1);
+for i=1:size(Gitog,1)
+   for j=1:size(Gitog,2)       
+       k(Gitog(i,j)+1)=k(Gitog(i,j)+1)+1;
+   end
+end
+figure,plot(k);
+title ('Гистограмма до растяжения Лапласиана');
+
+L=max(max(Gitog));
+Lmin=min(min(Gitog));
+
+GitogForGist=Gitog; %Для того чтобы не изменять существующий массив
+%[0,3001] -> [0,65535] 
+for i=1:size(Gitog,1)
+   for j=1:size(Gitog,2)       
+       GitogForGist(i,j) = double(Gitog(i,j))*(65535.0/double(L));
+   end
+end
+
+k=zeros(65535,1);
+for i=1:size(Gitog,1)
+   for j=1:size(Gitog,2)       
+       k(Gitog(i,j)+1)=k(Gitog(i,j)+1)+1;
+   end
+end
+figure,plot(k)
+title ('Гистограмма после растяжения Лапласиана');

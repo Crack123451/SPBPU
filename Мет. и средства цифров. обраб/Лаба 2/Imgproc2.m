@@ -5,27 +5,38 @@ I=imread('D:/Diag.jpg');
 G=zeros (size(I,1)+2,size(I,2)+2); %Создали массив с рамкой
 G=uint8(G);
 
+Ser=zeros (size(I,1),size(I,2));
+Ser=uint8(Ser);
+
 for i=1:size(I,1)
     for j=1:size(I,2)
-    G(i+1,j+1)= I(i,j);
+    Ser(i,j)= uint8(I(i,j,1)*0.299+I(i,j,2)*0.587+I(i,j,3)*0.114);
+   
+    end
+end 
+figure,imshow(Ser);
+
+for i=1:size(I,1)
+    for j=1:size(I,2)
+    G(i+1,j+1)= Ser(i,j);
     end
 end 
 %Заполнили массив без заполнения рамки
 
-G(1,1)=I(1,1);
-G(1,size(I,2)+2)=I(1,size(I,2));
-G(size(I,1)+2,1)=I(size(I,1),1);
-G(size(I,1)+2,size(I,2)+2)=I(size(I,1),size(I,2));
+G(1,1)=Ser(1,1);
+G(1,size(I,2)+2)=Ser(1,size(I,2));
+G(size(I,1)+2,1)=Ser(size(I,1),1);
+G(size(I,1)+2,size(I,2)+2)=Ser(size(I,1),size(I,2));
 %Заполняем углы рамки
 
 for j=1:size(I,2) %Проходим по столбцам (1 и последней строки)
-    G(1,j+1)=I(1,j);
-    G(size(I,1)+2,j+1)=I(size(I,1),j);
+    G(1,j+1)=Ser(1,j);
+    G(size(I,1)+2,j+1)=Ser(size(I,1),j);
 end
 
 for i=1:size(I,1) %Проходим по строкам (1 и последнего столбца)
-    G(i+1,1)=I(i,1);
-    G(i+1,size(I,2)+2)=I(i,size(I,2));
+    G(i+1,1)=Ser(i,1);
+    G(i+1,size(I,2)+2)=Ser(i,size(I,2));
 end
 
 k=zeros(255,1);
