@@ -30,4 +30,9 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="messages.mc">
+      <Filter>Файлы ресурсов</Filter>
+    </CustomBuild>
+  </ItemGroup>
 </Project>

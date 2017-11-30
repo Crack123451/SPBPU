@@ -7,10 +7,10 @@ namespace LabaSysProg1
     {
         static void Main(string[] args)
         {
-            //Exception_DivideByZeroException();
+            Exception_DivideByZeroException();
             //Exception_IndexOutOfRangeException();
             //Exception_in_handler();
-            Exception_in_filter();
+            //Exception_in_filter();
         }
 
         static void Exception_DivideByZeroException()
