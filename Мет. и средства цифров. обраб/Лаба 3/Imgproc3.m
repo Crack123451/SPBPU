@@ -149,7 +149,7 @@ Lmin=min(min(Gitog));
 Gitog=double(Gitog);
 for i=1:size(Gitog,1)
     for j=1:size(Gitog,2)
-        Gitog(i,j)=Gitog(i,j)/double(L)*0.3;
+        Gitog(i,j)=Gitog(i,j)/double(L)*1.3;
         Gitog(i,j)=Gitog(i,j)+1;
         Iser(i,j)=Gitog(i,j)*Iser(i,j);
     end
