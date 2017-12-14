@@ -1,0 +1,132 @@
+clc, clear, echo off
+% Заданные условия
+gamma = 0.1;
+delta = 0.09;
+Pdov=0.95;
+M=100;
+
+% Параметры возмущаюших воздействий
+mux = 0; % МО шума возмущения
+muy = 0; % MO шума измерения
+sigmx = 1; % Дисперсия шума возмущения
+sigmy = 4; % Дисперсия шума измерения
+
+shx = 2;
+shy = 0;
+dx = 1;
+dy = 1;
+
+
+% Процесс авторегресии первого порядка x(n) = a1*x(n-1)+g
+% Процесс авторегресии второго порядка x(n) = a1*x(n-1)+a2*x(n-2)+g
+a1=0.25;  % Коэффициент авторегресси a1
+a2=0.5;  % Коэффициент авторегресси a2
+A = [a1 a2; 1 0]; % Матрица состояния 
+
+
+%mu1 = 0; % МО шума возмущения
+%Msm = 3; % Постоянное смещение уровня шумов в канале измерения
+%Msv = 3; % постоянное смещение уровня шумов в канале возмущения
+F = [1;0]; % Вектор входа по возмущению
+
+% Параметры наблюдателя
+C = [1 0]; % Вектор измерения по состоянию       
+%Начальные условия
+X1 = [0;0]; % Начальное наблюдение
+P = sigmy*[1 0; 0 1]; % Корреляционная матрица ошибок фильтрации
+X1_=[0;0]; % Начальная оценка наблюдения
+
+%Счетчик цикла реализаций (дискретное время)
+n = 1000;
+time = 1:n;
+n_er = 5000;  % при дефекте            
+Znorm = zeros(1,n); % размер матрицы                       
+%Цикл реализации работы фильтра
+for i=1:n
+    
+    % Моделирование измерений
+    if i < n_er
+       X1 = A*X1 + normrnd(mux,sigmx);
+       Y = C*X1 + normrnd(muy,sigmy); 
+    else
+       X1 = A*X1 + normrnd(mux+shx,sigmx*dx);
+       Y = C*X1 + normrnd(muy+shy,sigmy*dy);
+    end
+    Xm(1,i) = X1(1,1);
+    %Вычисление матричного коэффициента усиления
+    %и корреляционной матрицы ошибок экстраполяции
+    Q = A*P*A' + F*sigmx*F';
+    K = Q*(C')*((C*Q*(C') + sigmy)^-1);
+    P = Q - K*C*Q;
+    %Оценка вектора состояния и вычисление обновляющей
+    %последовательности
+    X1_ = A*X1_ + F*mux + K*(Y - C*(A*X1_ + F*mux));
+    Z1 = Y - C*(A*X1_ + F*mux);
+    Zi(i)=Z1;
+    %нормировочный коэффициент
+    S = sigmy + C*P*(C') - sigmy*(K')*(C') - C*K*sigmy;
+    %нормируем обновляющую последовательность
+    Z = (Z1)*(S^-0.5);
+    Znorm(1,i)=Z;
+end    
+
+% определение абсцисс
+Z_gamma = double(solve(sprintf('%f - 0.5 = 0.5 * erf(x/sqrt(2))', gamma)));
+Z_inf = double(solve(sprintf('%f = erf(x/sqrt(2))', delta)));
+
+for i=1:n
+%интервальный метод
+    if i<=M
+        n=i;
+    else
+        n=M;  
+    end
+    mn=mean(Znorm(1,i-n+1:i));
+    Sn=std(Znorm(1,i-n+1:i));
+    Kn = Z_inf * (1 + (Z_gamma / sqrt(2 * n)) + (5 * Z_gamma ^ 2 + 10) / (12 * n));
+    if i<=M
+        l1(i)=mn-Kn*Sn;
+        l2(i)=mn+Kn*Sn;
+    else
+        l1(i)=l1(i-1);
+        l2(i)=l2(i-1);
+    end
+    if (n>2)
+        % находим квантили Стьюдента
+        t_st=tinv(1-(1-Pdov)/2,n-1);
+        % строим u1 и u2
+        u1(i)=mn-t_st*Sn/sqrt(n);
+        u2(i)=mn+t_st*Sn/sqrt(n);
+      % решение о наличии дефекта
+        if (l1(i)>u2(i)||l2(i)<u1(i))
+            err(i)=1;
+        else
+            err(i)=0;
+        end
+    end
+end
+Plo=mean(err);
+
+% disp('Gamma=')
+% disp(gamma);
+disp('Plo=')
+disp(Plo);
+
+
+hFigure1 = figure('Color',[1 1 1]);
+hAxes1 = axes('Visible','on','Parent',hFigure1);
+box('on');
+hold('all');
+grid on; 
+xlabel( hAxes1, 'Time','FontSize',10); ylabel(hAxes1, 'u1, u2, l1, l2','FontSize',10);   
+ylim([-4 6]);
+
+plot(time,l1,'color','red');
+plot(time,l2,'color','red');
+plot(time, u1,'color','blue');
+plot(time, u2,'color','blue');
+plot(time, err-3,'color','black','LineWidth',2);
+plot(time, Znorm);
+grid on;
+
+
